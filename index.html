@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rental Register</title>
+<style>
+  :root{
+    --bg:#f3f1ea;
+    --surface:#ffffff;
+    --surface-2:#eae5d6;
+    --border:#d9d3bf;
+    --text:#201f1a;
+    --text-muted:#6d6a5c;
+    --accent:#1f5c73;
+    --accent-strong:#123c4c;
+    --accent-2:#c98026;
+    --accent-2-bg:#f6e6c9;
+    --success:#3f7d4a;
+    --success-bg:#e1ece0;
+    --warning:#b8791f;
+    --warning-bg:#f5e8d2;
+    --code-bg:#1c2a2f;
+    --code-text:#dfe9e6;
+    --code-border:#31474e;
+    --shadow: 0 1px 2px rgba(32,31,26,.06), 0 8px 24px -12px rgba(32,31,26,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1913;
+      --surface:#242219;
+      --surface-2:#2c2a1e;
+      --border:#3c3828;
+      --text:#eeeade;
+      --text-muted:#a6a18e;
+      --accent:#63b5d1;
+      --accent-strong:#95d3e8;
+      --accent-2:#f0ac52;
+      --accent-2-bg:#3a2e18;
+      --success:#7bc487;
+      --success-bg:#1f2e21;
+      --warning:#e2ab5c;
+      --warning-bg:#332811;
+      --code-bg:#10191b;
+      --code-text:#dbe8e4;
+      --code-border:#2b3f44;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1913;
+    --surface:#242219;
+    --surface-2:#2c2a1e;
+    --border:#3c3828;
+    --text:#eeeade;
+    --text-muted:#a6a18e;
+    --accent:#63b5d1;
+    --accent-strong:#95d3e8;
+    --accent-2:#f0ac52;
+    --accent-2-bg:#3a2e18;
+    --success:#7bc487;
+    --success-bg:#1f2e21;
+    --warning:#e2ab5c;
+    --warning-bg:#332811;
+    --code-bg:#10191b;
+    --code-text:#dbe8e4;
+    --code-border:#2b3f44;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height:1.55;
+    padding-inline:20px;
+  }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace; }
+  h1,h2,h3{ font-family:"IBM Plex Sans", sans-serif; text-wrap:balance; }
+  a{ color:var(--accent); }
+
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    font-size:.72rem;
+    color:var(--accent-2);
+    font-weight:600;
+  }
+
+  .shell{
+    max-width:1180px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:230px minmax(0,720px);
+    gap:56px;
+    padding-block:40px 80px;
+  }
+  @media (max-width:900px){
+    .shell{ grid-template-columns:minmax(0,1fr); gap:24px; }
+    .rail{ display:none; }
+    .mobile-toc{ display:block; }
+  }
+
+  /* ---- header / hero ---- */
+  .hero{ grid-column:1/-1; margin-bottom:8px; }
+  .hero h1{
+    font-size:clamp(2rem,4.5vw,2.7rem);
+    margin:.2em 0 .3em;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+  .hero p{
+    max-width:62ch;
+    color:var(--text-muted);
+    font-size:1.05rem;
+    margin:0;
+  }
+
+  /* ---- agenda strip ---- */
+  .agenda{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:2px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:28px;
+  }
+  .agenda > div{
+    background:var(--surface);
+    padding:14px 12px;
+    min-width:0;
+  }
+  .agenda time{
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.7rem;
+    color:var(--accent-2);
+    font-variant-numeric:tabular-nums;
+    margin-bottom:4px;
+  }
+  .agenda span{ font-size:.8rem; font-weight:500; }
+
+  /* ---- sidebar rail ---- */
+  .rail{ position:sticky; top:32px; align-self:start; max-height:calc(100vh - 64px); overflow-y:auto; }
+  .rail nav{ display:flex; flex-direction:column; gap:2px; }
+  .rail a{
+    text-decoration:none;
+    color:var(--text-muted);
+    font-size:.86rem;
+    padding:5px 10px;
+    border-radius:6px;
+    border-left:2px solid transparent;
+  }
+  .rail a.sub{ padding-left:22px; font-size:.79rem; }
+  .rail a:hover{ background:var(--surface-2); color:var(--text); }
+  .rail a.active{
+    color:var(--accent-strong);
+    border-left-color:var(--accent);
+    background:var(--surface-2);
+    font-weight:600;
+  }
+
+  .mobile-toc{ display:none; grid-column:1/-1; }
+  .mobile-toc summary{
+    cursor:pointer;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--accent);
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .mobile-toc nav{ display:flex; flex-direction:column; padding:10px 0; }
+  .mobile-toc a{ color:var(--text-muted); padding:6px 0; text-decoration:none; font-size:.9rem; }
+  .mobile-toc a.sub{ padding-left:16px; }
+
+  /* ---- main column ---- */
+  main{ min-width:0; display:flex; flex-direction:column; gap:64px; }
+  section{ scroll-margin-top:24px; }
+  section > h2{
+    font-size:1.5rem;
+    margin:0 0 .5em;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  section > .section-intro{ color:var(--text-muted); max-width:65ch; margin:0 0 20px; }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+  }
+  ul.checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+  ul.checklist li{ padding-left:1.6em; position:relative; font-size:.94rem; }
+  ul.checklist li::before{
+    content:"";
+    position:absolute; left:0; top:.5em;
+    width:9px; height:9px;
+    border:2px solid var(--accent);
+    border-radius:2px;
+  }
+  ul.checklist code{ font-family:"IBM Plex Mono",monospace; font-size:.85em; background:var(--surface-2); padding:1px 5px; border-radius:4px; }
+
+  .note{
+    border-left:3px solid var(--accent-2);
+    background:var(--accent-2-bg);
+    padding:12px 16px;
+    border-radius:0 8px 8px 0;
+    font-size:.92rem;
+  }
+  .note .eyebrow{ display:block; margin-bottom:4px; }
+  .note code{ font-family:"IBM Plex Mono",monospace; font-size:.9em; }
+
+  .note.reuse{ border-left-color:var(--success); background:var(--success-bg); }
+  .note.reuse .eyebrow{ color:var(--success); }
+
+  /* ---- info grid (foundations + brief) ---- */
+  .info-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:18px 0; }
+  .info-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+  }
+  .info-card .eyebrow{ margin-bottom:6px; display:block; }
+  .info-card h3{ font-size:1rem; margin:0 0 6px; }
+  .info-card p{ margin:0; font-size:.88rem; color:var(--text-muted); }
+
+  /* ---- feature header ---- */
+  .feature-head{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    margin-bottom:6px;
+  }
+  .feature-head h2{ margin:0; }
+  .badge{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    padding:3px 9px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .badge.time{ color:var(--accent-2); border-color:var(--accent-2); }
+  .branch-line{ font-size:.86rem; color:var(--text-muted); margin:0 0 16px; }
+  .branch-line code{ font-family:"IBM Plex Mono",monospace; background:var(--surface-2); padding:1px 6px; border-radius:4px; }
+
+  /* ---- stepper ---- */
+  .steps{ display:flex; flex-direction:column; }
+  .step{ display:grid; grid-template-columns:36px minmax(0,1fr); gap:16px; position:relative; padding-bottom:28px; }
+  .step:last-child{ padding-bottom:0; }
+  .step-num{
+    width:36px; height:36px; border-radius:50%;
+    background:var(--accent-2-bg); color:var(--accent-2);
+    border:1px solid var(--accent-2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.85rem;
+    z-index:1;
+  }
+  .step::after{
+    content:"";
+    position:absolute; left:17px; top:36px; bottom:0;
+    width:2px; background:var(--border);
+  }
+  .step:last-child::after{ display:none; }
+  .step-body h3{ margin:.15em 0 8px; font-size:1.05rem; }
+  .step-label{
+    font-family:"IBM Plex Mono",monospace; font-size:.7rem; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--accent-2); font-weight:600;
+  }
+  .step-meta{
+    font-family:"IBM Plex Mono",monospace; font-size:.72rem; color:var(--text-muted);
+    margin:2px 0 0;
+  }
+  .sub-head{ font-weight:600; font-size:.92rem; margin:16px 0 4px; }
+  .sub-head:first-child{ margin-top:2px; }
+
+  .prompt{
+    background:var(--code-bg);
+    color:var(--code-text);
+    border:1px solid var(--code-border);
+    border-radius:8px;
+    padding:14px 16px;
+    margin:10px 0;
+    position:relative;
+  }
+  .prompt p{ margin:0; font-family:"IBM Plex Mono",monospace; font-size:.83rem; line-height:1.65; white-space:pre-wrap; }
+  .prompt.file p{ font-size:.76rem; max-height:420px; overflow-y:auto; }
+  .prompt-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .prompt-head span{ font-family:"IBM Plex Mono",monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:#8fa5aa; }
+  .copy-btn{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    background:transparent;
+    border:1px solid #3a5158;
+    color:#cfe0dd;
+    border-radius:6px;
+    padding:3px 9px;
+    cursor:pointer;
+  }
+  .copy-btn:hover{ background:#233238; }
+  .copy-btn:focus-visible, a:focus-visible, .rail a:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .review{ margin-top:10px; font-size:.86rem; }
+  .review .eyebrow{ display:block; margin-bottom:5px; }
+  .review ul{ margin:0; padding-left:1.2em; color:var(--text-muted); }
+  .review li{ margin-bottom:3px; }
+
+  footer{ grid-column:1/-1; border-top:1px solid var(--border); padding-top:20px; color:var(--text-muted); font-size:.82rem; }
+
+  @media (prefers-reduced-motion: no-preference){
+    .card, .info-card, .step{ transition:none; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="hero">
+    <span class="eyebrow">Agentic coding · Business Central AL · 2 hours</span>
+    <h1>Rental Register</h1>
+    <p>A working, tested Equipment Rental extension, built feature by feature with an AI coding agent. Feature 1 builds the loop and the skills that run it; Feature 2 and 3 just invoke them.</p>
+  </div>
+
+  <div class="agenda">
+    <div><time>0:00–0:05</time><span>Foundations</span></div>
+    <div><time>0:05–0:15</time><span>Kickoff &amp; brief</span></div>
+    <div><time>0:15–0:40</time><span>Constitution</span></div>
+    <div><time>0:40–1:20</time><span>Feature 1 — Equipment Register</span></div>
+    <div><time>1:20–1:38</time><span>Feature 2 — Rental Agreements</span></div>
+    <div><time>1:38–1:55</time><span>Feature 3 — Pricing &amp; Posting</span></div>
+    <div><time>1:55–2:00</time><span>Wrap-up</span></div>
+  </div>
+
+  <details class="mobile-toc">
+    <summary>On this page</summary>
+    <nav id="mobile-nav"></nav>
+  </details>
+
+  <aside class="rail">
+    <nav id="rail-nav">
+      <a href="#foundations">Foundations</a>
+      <a href="#kickoff">Kickoff</a>
+      <a href="#before-we-start">One thing before we start</a>
+      <a href="#brief">The brief</a>
+      <a href="#constitution">Constitution</a>
+      <a class="sub" href="#tech-design">Tech design</a>
+      <a class="sub" href="#stress-test">Stress-test</a>
+      <a class="sub" href="#roadmap">Roadmap</a>
+      <a class="sub" href="#coding-guidelines">Coding guidelines</a>
+      <a href="#feature-1">Feature 1 — Equipment Register</a>
+      <a class="sub" href="#f1-spec">Spec</a>
+      <a class="sub" href="#f1-implement">Implement</a>
+      <a class="sub" href="#f1-test">Test</a>
+      <a class="sub" href="#f1-docs">Docs</a>
+      <a class="sub" href="#f1-docs-skill">Package the docs skill</a>
+      <a class="sub" href="#f1-finalise">Finalise</a>
+      <a class="sub" href="#f1-skills">Package spec &amp; finalise skills</a>
+      <a href="#feature-2">Feature 2 — Rental Agreements</a>
+      <a class="sub" href="#f2-spec">Spec (skill)</a>
+      <a class="sub" href="#f2-implement">Implement</a>
+      <a class="sub" href="#f2-test">Test</a>
+      <a class="sub" href="#f2-docs">Docs (skill)</a>
+      <a class="sub" href="#f2-finalise">Finalise (skill)</a>
+      <a href="#feature-3">Feature 3 — Pricing &amp; Posting</a>
+      <a class="sub" href="#f3-spec">Spec (skill)</a>
+      <a class="sub" href="#f3-implement">Implement</a>
+      <a class="sub" href="#f3-test">Test</a>
+      <a class="sub" href="#f3-docs">Docs (skill)</a>
+      <a class="sub" href="#f3-finalise">Finalise (skill)</a>
+      <a href="#wrap-up">Wrap-up</a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <section id="foundations">
+      <h2>Foundations</h2>
+      <p class="section-intro">Four ideas worth five minutes before you touch the agent. Everything else today is these ideas applied.</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="eyebrow">1 · Think like an LLM</span>
+          <h3>Context beats prompting</h3>
+          <p>A model predicts the next token from whatever context it can see. Output quality is directly proportional to context quality — clever phrasing can't substitute for missing domain knowledge.</p>
+        </div>
+        <div class="info-card">
+          <span class="eyebrow">2 · From LLM to agent</span>
+          <h3>Context, model, harness</h3>
+          <p>An agent is an LLM working in a loop, using tools. It has no memory of its own — the harness resends context every call. You're the architect: you choose the context, the model, and the tools.</p>
+        </div>
+        <div class="info-card">
+          <span class="eyebrow">3 · Vibe → agentic coding</span>
+          <h3>Plan first, then direct</h3>
+          <p>Vibe coding is "describe it, look at it, ask for changes" — it doesn't scale past a short conversation. Agentic coding front-loads a written plan so the agent can work in bounded, verifiable steps.</p>
+        </div>
+        <div class="info-card">
+          <span class="eyebrow">4 · Spec-driven development</span>
+          <h3>Write it down first</h3>
+          <p>A constitution (brief, tech design, roadmap, coding rules) plus a repeatable loop — spec, implement, test, document, finalise — turns the agent into a dependable worker instead of a stateless one.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="kickoff">
+      <h2>Kickoff</h2>
+      <p class="section-intro">By the end of today you'll have a small, real Business Central extension — built end to end with an AI coding agent — and a loop you can run on every feature after this one.</p>
+      <div class="card">
+        <span class="eyebrow">Before you start the clock</span>
+        <ul class="checklist" style="margin-top:10px;">
+          <li>An AL project open, AL Language extension v18+ installed, with a BC sandbox (SaaS or local container) you can compile and run against</li>
+          <li>Your coding agent running — Claude Code, Cursor, or Copilot — with access to Claude Opus 5 / Sonnet 5 or GPT-5.6; the model matters more than the tool</li>
+          <li><strong>Microsoft Learn MCP</strong> connected, so the agent can cite official docs instead of guessing — it's a remote server, no install: <code>https://learn.microsoft.com/api/mcp</code></li>
+          <li><strong>AL MCP</strong> (<code>altool</code>) connected, so the agent can build, read diagnostics, and run tests itself instead of you relaying compiler errors by hand</li>
+          <li>The Business Central base source added as a git submodule under <code>external/</code> — the agent should read real BC code, not guess at it</li>
+          <li>An empty <code>specs/</code> folder ready to hold today's documents</li>
+        </ul>
+      </div>
+
+      <div class="prompt" style="margin-top:14px;">
+        <div class="prompt-head"><span>setup · base BC source</span><button class="copy-btn" data-copy="p-submodule">Copy</button></div>
+        <p id="p-submodule">git clone --depth 1 https://github.com/microsoft/BCApps external/BCApps
+git submodule add --force https://github.com/microsoft/BCApps external/BCApps
+git config -f .gitmodules submodule.external/BCApps.branch main
+git config -f .gitmodules submodule.external/BCApps.shallow true
+git add .gitmodules external/BCApps
+git commit -m "Add BCApps submodule (main, shallow)"</p>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><span>setup · microsoft learn mcp (claude code)</span><button class="copy-btn" data-copy="p-mslearn">Copy</button></div>
+        <p id="p-mslearn">/plugin install microsoft-docs@claude-plugins-official</p>
+      </div>
+      <div class="note">
+        <span class="eyebrow">Cursor / VS Code</span>
+        Add the Microsoft Learn MCP manually instead: <code>{"microsoft-learn": {"type": "http", "url": "https://learn.microsoft.com/api/mcp"}}</code>. For the AL MCP, install <code>altool</code> via dotnet and register it with your agent — see your agent's MCP settings for the exact syntax.
+      </div>
+    </section>
+
+    <section id="before-we-start">
+      <h2>One thing before we start</h2>
+      <p class="section-intro">Everything below is a workflow, not a tool. Swap in whichever agent you use — the discipline is what compounds: spec before code, review before merge, tests before you call it done.</p>
+      <div class="note">
+        <span class="eyebrow">Resist the urge</span>
+        Don't open the agent and ask it to "build the rental extension." Every section below breaks that instinct into a smaller, checkable step — that's the actual skill being taught today, not the AL code it produces.
+      </div>
+    </section>
+
+    <section id="brief">
+      <h2>The brief</h2>
+      <p class="section-intro">Our customer rents out equipment — power tools, AV gear, event kit — to business customers by the day. Three capabilities, in build order:</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="eyebrow">Row 1</span>
+          <h3>Equipment register</h3>
+          <p>What we own, its daily rate, and whether it's available, out on rent, or in maintenance.</p>
+        </div>
+        <div class="info-card">
+          <span class="eyebrow">Row 2</span>
+          <h3>Rental agreements</h3>
+          <p>A customer rents one or more items for a date range. Catch double-bookings; record checkout and checkin.</p>
+        </div>
+        <div class="info-card">
+          <span class="eyebrow">Row 3</span>
+          <h3>Pricing &amp; posting</h3>
+          <p>Charge is days × daily rate. Closing an agreement posts it as a ledger transaction.</p>
+        </div>
+      </div>
+      <div class="note">
+        <span class="eyebrow">Do this now</span>
+        Create <code>specs/brief.md</code> in your repo and paste the three rows above into it, in your own words if you like. This file is the anchor document — every prompt from here on tells the agent to read it, so it needs to exist before Constitution starts.
+      </div>
+    </section>
+
+    <section id="constitution">
+      <h2>Constitution</h2>
+      <p class="section-intro">Before any feature code, agree the shape of the whole extension with your agent, and write down how you expect AL code to look. Three documents plus one gut-check, about twenty-five minutes.</p>
+
+      <div class="steps">
+        <div class="step" id="tech-design">
+          <div class="step-num">A</div>
+          <div class="step-body">
+            <span class="step-label">Tech design</span>
+            <h3>specs/tech-design.md</h3>
+            <p class="step-meta">Model: Claude Opus 5 · BC source + Microsoft Learn MCP active</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-techdesign">Copy</button></div>
+              <p id="p-techdesign">Read specs/brief.md carefully. You have access to the full Business Central source code in external/BCApps and to Microsoft Learn via MCP. Use both. Produce specs/tech-design.md with the following structure: for each requirement in the brief, write a section with:
+1. What standard Business Central already provides to cover this requirement — cite specific BC source files or Microsoft Learn URLs as evidence.
+2. What gaps remain that standard BC cannot cover without custom code.
+3. A brief implementation decision: how we will implement this feature, favouring standard BC features, configuration, and extension points over custom development.
+Do not write AL code. Describe the approach in plain language.
+
+Ground rules:
+- Exhaust standard BC options before proposing custom tables, documents, or posting logic.
+- Where standard BC covers a requirement, cite evidence — don't propose a custom alternative anyway.
+- Keep custom code thin; prefer extending existing objects over creating new ones.
+- Don't guess — say what you researched if you're not sure.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="stress-test">
+          <div class="step-num">B</div>
+          <div class="step-body">
+            <span class="step-label">Stress-test</span>
+            <h3>A second opinion on tech-design.md → iterate until no new issues surface</h3>
+            <p class="step-meta">Model: Claude Opus 5 · BC Code Intelligence MCP active</p>
+            <p style="margin:0 0 10px; font-size:.92rem; color:var(--text-muted);">The agent that wrote the design is anchored to its own reasoning. A second, independent pass — reading only the brief and the design, not the conversation that produced it — catches unaddressed requirements, custom work where standard BC already does the job, and claims about BC behaviour that were never actually verified.</p>
+            <ol class="rules">
+              <li>Install BC Code Intelligence MCP from <span class="mono">github.com/JeremyVyska/bc-code-intelligence-mcp</span> — follow the install instructions in the repo README</li>
+              <li>Choose your approach: continue the current chat (recommended), fork it, or open a new one</li>
+              <li>Select Opus 5 and activate the BC Code Intelligence MCP</li>
+              <li>Paste the critique prompt below</li>
+              <li>Take the critique seriously — revise specs/tech-design.md based on what it finds. If Alex Architect flags something, ask Opus to revise specs/tech-design.md accordingly. Repeat until no new issues surface.</li>
+            </ol>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-stresstest">Copy</button></div>
+              <p id="p-stresstest">Take a fresh look at the suggested @specs/tech-design.md using subagent. Use the Alex Architect persona from BC Code Intelligence (bc-knowledge mcp).
+
+Read specs/brief.md and specs/tech-design.md. Your job is to critique the tech design — not to be polite about it. Look for:
+
+1. Requirements from the brief that are not addressed in the design.
+2. Proposals for custom development where standard BC functionality already exists.
+3. Over-engineered solutions where a simpler standard approach would work.
+4. Any design decision that lacks justification or evidence from the BC source or Microsoft documentation.
+5. Hallucinations — for every claim that a standard BC feature covers a requirement, verify it against the actual BC source in external/BCApps. If the feature does not exist, does not work the way the design describes, or is missing key capabilities needed to fulfil the requirement, call it out explicitly.
+
+For each issue you find, state: what the problem is, what a better approach would be, and where in the BC source or Microsoft Learn you found evidence for your recommendation. Do not summarise what the design does well. Focus only on what should change.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="roadmap">
+          <div class="step-num">C</div>
+          <div class="step-body">
+            <span class="step-label">Roadmap</span>
+            <h3>specs/roadmap.md</h3>
+            <p class="step-meta">Model: Claude Sonnet 5 · new chat, clean context</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-roadmap">Copy</button></div>
+              <p id="p-roadmap">Read specs/tech-design.md and specs/brief.md. Produce specs/roadmap.md — an ordered list of implementation features.
+
+Rules:
+- Features build sequentially, with no forward dependencies.
+- Each entry includes: name, user benefit, status, implementation summary, and done-criteria.
+- No implementation detail, AL object references, or field names — that belongs in the feature spec, not here.
+- Keep it a queue, not a detailed specification.</p>
+            </div>
+            <div class="note" style="margin-top:10px;">
+              <span class="eyebrow">Why a new chat</span>
+              Starting fresh means the agent reads tech-design.md as a finished document, not something still up for negotiation.
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="coding-guidelines">
+          <div class="step-num">D</div>
+          <div class="step-body">
+            <span class="step-label">Coding guidelines</span>
+            <h3>AGENTS.md, via a reusable skill</h3>
+            <p style="margin:0 0 10px; font-size:.92rem; color:var(--text-muted);">Without shared rules, quality drifts — every new agent session is a fresh start. AGENTS.md is the contract: "this is how we write AL here, always." It's small enough to matter every time and boring enough that no one wants to write it by hand — which is exactly what makes it worth automating once.</p>
+
+            <p class="sub-head">1. Create the folders</p>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">In your workspace, create two empty folders: <code class="mono">.copilot/rules/</code> and <code class="mono">.copilot/skills/</code>.</p>
+
+            <p class="sub-head">2. Create the skill file</p>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">Create <code class="mono">.copilot/skills/setup-al-agentic-rules.md</code> and paste in this definition:</p>
+            <div class="prompt file">
+              <div class="prompt-head"><span>file · .copilot/skills/setup-al-agentic-rules.md</span><button class="copy-btn" data-copy="p-skillfile">Copy</button></div>
+              <p id="p-skillfile">---
+name: setup-al-agentic-rules
+description: Bootstrap an AL project with the official Microsoft AL agentic rules from the alguidelines GitHub repo. Downloads all rule files to .copilot/rules/, adds .copilot/ to the workspace file, and writes or updates AGENTS.md with a standard three-section scaffold. Use when starting a new AL project, onboarding a new developer, or refreshing stale rule files.
+disable-model-invocation: true
+---
+
+# Setup AL Agentic Rules
+
+Fetches the official Microsoft AL coding rules from GitHub and wires them into the project so every future agent session follows them automatically.
+
+## Step 1 — Discover files in the GitHub folder
+
+Call the GitHub Contents API to get the current file list (never hard-code filenames):
+
+GET https://api.github.com/repos/microsoft/alguidelines/contents/content/docs/agentic-coding/vibe-coding-rules
+
+Parse the JSON response and collect every entry where "type": "file". Extract the name and download_url of each file.
+
+## Step 2 — Download each file directly into .copilot/rules/
+
+Ensure the .copilot/rules/ directory exists, then download every file from its download_url into .copilot/rules/&lt;filename&gt;. Do NOT use WebFetch and then Write — download straight to disk.
+
+On Windows (PowerShell):
+
+```powershell
+New-Item -ItemType Directory -Force -Path ".copilot/rules" | Out-Null
+Invoke-WebRequest -Uri "&lt;download_url&gt;" -OutFile ".copilot/rules/&lt;filename&gt;"
+```
+
+Run all downloads in one shell call by chaining them with ; so every file is saved in a single round-trip.
+
+## Step 3 — Add .copilot/ to the workspace file
+
+The .code-workspace file sits at the repo root — the same directory that contains app/, specs/, test/, and AGENTS.md. Do not assume the current working directory is the repo root when inside a workspace.
+
+Locate the workspace file explicitly:
+
+```powershell
+$repoRoot = (Get-Item (Resolve-Path "specs/brief.md")).Directory.FullName
+$workspaceFile = Get-ChildItem -Path $repoRoot -Filter "*.code-workspace" | Select-Object -First 1 -ExpandProperty FullName
+```
+
+Then read the JSON, add { "path": ".copilot" } to the folders array if not already present, and write it back. The path .copilot is relative to the workspace file location (i.e. the repo root), so no absolute path is needed.
+
+## Step 4 — Write AGENTS.md
+
+Write (or overwrite) AGENTS.md in the repo root with exactly this structure and wording:
+
+# &lt;Project Name&gt; — Project Rules
+
+## What this project is
+
+&lt;One sentence describing the BC extension and its business domain.&gt; Read `specs/brief.md` for the full customer brief.
+
+## SDD process
+
+This project uses Spec-Driven Development. Before implementing anything:
+
+1. Read `specs/tech-design.md` and `specs/roadmap.md`
+2. Every feature lives on branch `spec/YYYY-MM-DD-feature-name`
+3. Create `specs/YYYY-MM-DD-feature-name/requirements.md` + `plan.md` + `acceptance.md` before writing any code
+4. Loop: Spec → Implement → Test → Docs → Merge
+
+## AL coding standards
+
+See `.copilot/rules/` for detailed rules.
+
+---
+
+Fill in the project name and the one-sentence description from specs/brief.md.
+Do not add extra sections. Do not expand the SDD process list. Write it exactly as shown.
+
+## Verification
+
+After completing all steps, confirm:
+- .copilot/rules/ contains all files from the GitHub folder
+- .code-workspace has { "path": ".copilot" } in folders
+- AGENTS.md exists at the repo root with all three sections
+
+## Notes
+- Always fetch from GitHub — never generate or paraphrase rule content.
+- AGENTS.md should be kept short; detailed rules live in .copilot/rules/.</p>
+            </div>
+
+            <p class="sub-head">3. Invoke it</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt · new chat</span><button class="copy-btn" data-copy="p-guidelines">Copy</button></div>
+              <p id="p-guidelines">Setup AL agentic rules</p>
+            </div>
+
+            <div class="review">
+              <span class="eyebrow">What running it produces</span>
+              <ul>
+                <li>Every official AL rule file in <code>.copilot/rules/</code></li>
+                <li><code>.copilot/</code> wired into the workspace file</li>
+                <li>A short, three-section <code>AGENTS.md</code>: what this project is, the SDD process, and where the AL standards live</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:8px;">
+        <span class="eyebrow">Don't oversteer</span>
+        Let the agent propose field names and object IDs. Your job is checking the shape — does row 1 actually ship something demoable? — not the spelling.
+      </div>
+    </section>
+
+    <section id="feature-1">
+      <div class="feature-head">
+        <h2>Feature 1 — Equipment Register</h2>
+        <span class="badge time">~40 min</span>
+      </div>
+      <p class="section-intro">Register what we own: item, type, daily rate, status. This feature runs the loop by hand once — and packages every step into a skill so Feature 2 and 3 don't have to.</p>
+      <p class="branch-line">Ask the agent first: <code class="mono">Please, create the branch for the next feature.</code> → <code class="mono">spec/2026-09-16-equipment-register</code></p>
+
+      <div class="steps">
+        <div class="step" id="f1-spec">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="step-label">Spec</span>
+            <h3>Requirements, plan, acceptance</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-spec">Copy</button></div>
+              <p id="p-f1-spec">Read AGENTS.md, specs/tech-design.md, and specs/roadmap.md. We are starting Feature 1 — Equipment Register (roadmap row 1). Create a feature spec in specs/2026-09-16-equipment-register/ with three documents: requirements.md (what it does, and what it explicitly doesn't), plan.md (AL objects, table/page names, key fields — no new tables beyond what this feature needs), and acceptance.md (testable scenarios). Follow specs/tech-design.md exactly. Do not write any AL code yet.</p>
+            </div>
+            <div class="review">
+              <span class="eyebrow">Review for</span>
+              <ul>
+                <li>Every acceptance scenario has a concrete before/after — not "works correctly"</li>
+                <li>plan.md reuses existing BC fields where they fit, instead of inventing new ones</li>
+                <li>Status values match what tech-design.md named</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f1-implement">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="step-label">Implement</span>
+            <h3>Table, list, card</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-impl">Copy</button></div>
+              <p id="p-f1-impl">Implement the feature spec.</p>
+            </div>
+            <div class="review">
+              <span class="eyebrow">Review for</span>
+              <ul>
+                <li>Every changed file, in the diff panel — accept consciously, you're responsible for the code, not the agent</li>
+                <li>Ask for fixes conversationally instead of hand-editing — e.g. "extract this trigger logic into local functions with early exits" to match AGENTS.md</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f1-test">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="step-label">Test</span>
+            <h3>Publish, smoke test, automate</h3>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">Publish the app (Ctrl+F5) and check it by hand first: create an equipment card, set its type and daily rate, confirm status defaults to Available.</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-test">Copy</button></div>
+              <p id="p-f1-test">Write an AL test codeunit covering every scenario in acceptance.md. Run it and paste the results.</p>
+            </div>
+            <div class="note" style="margin-top:10px;">
+              <span class="eyebrow">Watch for</span>
+              A fix that makes a red test go green by loosening or removing the assertion is not a fix — read what actually changed.
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f1-docs">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <span class="step-label">Docs</span>
+            <h3>docs/user-guide.md</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-docs">Copy</button></div>
+              <p id="p-f1-docs">Read specs/brief.md, specs/roadmap.md, and this feature's spec. Update docs/user-guide.md: add a section for Equipment Register covering what it does, setup, and how to use it — plain language, for the end user, not the developer.</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">This file is a living document — it grows one section per feature, all day.</p>
+          </div>
+        </div>
+
+        <div class="step" id="f1-docs-skill">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <span class="step-label">Package it</span>
+            <h3>Turn what you learned into a skill</h3>
+            <p style="margin:0 0 10px; font-size:.92rem; color:var(--text-muted);">When you close this chat and open a new one for the next feature, the agent starts fresh. Everything it learned — how you structured the docs, how to review them — is gone. Skills fix this: instead of re-explaining the same things in every chat, you package the learning once and invoke it by name.</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-docsskill">Copy</button></div>
+              <p id="p-f1-docsskill">/create-skill
+Based on what we produced in this feature — the user-guide.md structure, the review process, and the corrections made — create a skill file at .copilot/skills/generate-docs.md that automates the same documentation workflow for the next feature.</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">The agent produces a skill that carries the workflow — and the lessons — into every future feature session automatically.</p>
+          </div>
+        </div>
+
+        <div class="step" id="f1-finalise">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <span class="step-label">Finalise</span>
+            <h3>Changelog, roadmap, merge</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-fin">Copy</button></div>
+              <p id="p-f1-fin">Add a dated entry to CHANGELOG.md, sync any implementation decisions back into specs/tech-design.md, and mark row 1 done in specs/roadmap.md.</p>
+            </div>
+            <div class="prompt">
+              <div class="prompt-head"><span>terminal</span><button class="copy-btn" data-copy="p-f1-merge">Copy</button></div>
+              <p id="p-f1-merge">git checkout main
+git merge spec/2026-09-16-equipment-register</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f1-skills">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <span class="step-label">Package it</span>
+            <h3>Two skills to create before moving on</h3>
+            <p style="margin:0 0 4px; font-size:.92rem; color:var(--text-muted);">You'll use both in every feature from here.</p>
+
+            <p class="sub-head">Spec skill</p>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">You just ran the spec process by hand. Package it once so the next feature can invoke it by name:</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-specskill">Copy</button></div>
+              <p id="p-f1-specskill">/create-skill
+Based on the spec process we used for this feature — reading the constitution, identifying the next planned feature from the roadmap, creating the feature branch, and generating requirements.md, plan.md, and acceptance.md — create a skill at .copilot/skills/create-feature-spec.md that automates this workflow for future features.</p>
+            </div>
+
+            <p class="sub-head">Finalise skill</p>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">The same finalise steps will repeat for every feature:</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f1-finskill">Copy</button></div>
+              <p id="p-f1-finskill">/create-skill
+Based on what we just did — updating CHANGELOG, syncing tech-design, marking the roadmap, merging, and replanning — create a skill at .copilot/skills/finalise-feature.md that automates this workflow for future features.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="feature-2">
+      <div class="feature-head">
+        <h2>Feature 2 — Rental Agreements</h2>
+        <span class="badge time">~18 min</span>
+      </div>
+      <p class="section-intro">A customer rents one or more items for a date range. Catch double-bookings; record checkout and checkin.</p>
+      <div class="note reuse">
+        <span class="eyebrow">This is why Feature 1 took longer</span>
+        Spec, docs, and finalise are now one-line invocations of the skills you built. No branch step either — <span class="mono">create-feature-spec</span> creates it for you. Only implement and test stay manual, same as before.
+      </div>
+
+      <div class="steps">
+        <div class="step" id="f2-spec">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="step-label">Spec · skill</span>
+            <h3>create-feature-spec</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f2-spec">Copy</button></div>
+              <p id="p-f2-spec">/create-feature-spec</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">Reads AGENTS.md, tech-design.md, and roadmap.md, finds the next unstarted row (Feature 2 — Rental Agreements), creates the branch, and writes requirements.md, plan.md, and acceptance.md.</p>
+            <div class="review">
+              <span class="eyebrow">Review for</span>
+              <ul>
+                <li>An explicit overlap-detection rule, not "the system prevents conflicts"</li>
+                <li>plan.md references Feature 1's status field rather than adding a parallel one</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f2-implement">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="step-label">Implement</span>
+            <h3>Agreement document</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f2-impl">Copy</button></div>
+              <p id="p-f2-impl">Implement the feature spec.</p>
+            </div>
+            <div class="review">
+              <span class="eyebrow">Review for</span>
+              <ul><li>The Equipment table from Feature 1 is reused, not duplicated</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f2-test">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="step-label">Test</span>
+            <h3>Including the conflict case</h3>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">Publish (Ctrl+F5) and try it by hand: book the same item for two overlapping date ranges and confirm the second one is blocked.</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f2-test">Copy</button></div>
+              <p id="p-f2-test">Write an AL test codeunit covering every scenario in acceptance.md, including: booking two overlapping agreements for the same item is blocked. Run it and paste the results.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f2-docs">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <span class="step-label">Docs · skill</span>
+            <h3>generate-docs</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f2-docs">Copy</button></div>
+              <p id="p-f2-docs">/generate-docs</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">Runs the same documentation workflow you packaged in Feature 1 — reads the spec, updates docs/user-guide.md, same structure, same review process.</p>
+          </div>
+        </div>
+
+        <div class="step" id="f2-finalise">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <span class="step-label">Finalise · skill</span>
+            <h3>finalise-feature</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f2-fin">Copy</button></div>
+              <p id="p-f2-fin">/finalise-feature</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">Updates CHANGELOG.md, syncs tech-design.md, marks row 2 done, merges to main, and replans — the whole checklist from Feature 1, in one line. Read its summary before it merges.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="feature-3">
+      <div class="feature-head">
+        <h2>Feature 3 — Pricing &amp; Posting</h2>
+        <span class="badge time">~17 min</span>
+      </div>
+      <p class="section-intro">Charge is days × daily rate. Closing an agreement posts it as a ledger transaction.</p>
+      <div class="note reuse">
+        <span class="eyebrow">Same three skills again</span>
+        Spec, docs, and finalise stay one line each — the compounding effect is the whole point.
+      </div>
+
+      <div class="steps">
+        <div class="step" id="f3-spec">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <span class="step-label">Spec · skill</span>
+            <h3>create-feature-spec</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f3-spec">Copy</button></div>
+              <p id="p-f3-spec">/create-feature-spec</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">Finds Feature 3 — Pricing &amp; Posting (roadmap row 3), creates the branch, writes requirements.md, plan.md, acceptance.md — following tech-design.md's posting strategy and Feature 2's checkout/checkin dates.</p>
+          </div>
+        </div>
+
+        <div class="step" id="f3-implement">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <span class="step-label">Implement</span>
+            <h3>Charge calculation and posting</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f3-impl">Copy</button></div>
+              <p id="p-f3-impl">Implement the feature spec.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f3-test">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <span class="step-label">Test</span>
+            <h3>Including the money case</h3>
+            <p style="margin:0 0 8px; font-size:.9rem; color:var(--text-muted);">Publish (Ctrl+F5) and try it by hand: close a 3-day agreement and check the posted amount equals 3 × the item's daily rate.</p>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f3-test">Copy</button></div>
+              <p id="p-f3-test">Write an AL test codeunit covering every scenario in acceptance.md, including: closing a 3-day agreement at the item's daily rate posts the correct amount. Run it and paste the results.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f3-docs">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <span class="step-label">Docs · skill</span>
+            <h3>generate-docs</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f3-docs">Copy</button></div>
+              <p id="p-f3-docs">/generate-docs</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" id="f3-finalise">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <span class="step-label">Finalise · skill</span>
+            <h3>finalise-feature</h3>
+            <div class="prompt">
+              <div class="prompt-head"><span>prompt</span><button class="copy-btn" data-copy="p-f3-fin">Copy</button></div>
+              <p id="p-f3-fin">/finalise-feature</p>
+            </div>
+            <p style="margin:8px 0 0; font-size:.85rem; color:var(--text-muted);">Marks row 3 done — that's the workshop scope complete.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="wrap-up">
+      <h2>Wrap-up</h2>
+      <div class="card">
+        <p style="margin:0 0 10px;">Feature 1 took 45 minutes and built four things at once: the feature, and three reusable skills. Feature 2 and 3 took a third of that each, because spec, docs, and finalise stopped being prompts you wrote and became commands you ran. That's the whole method — you stopped typing and started directing, and the agent wrote the code.</p>
+        <p style="margin:0; color:var(--text-muted);">Keep specs/roadmap.md as the map, and keep <code class="mono">.copilot/skills/</code> as the toolbox. The next session starts at the first unstarted row, with every skill you built today already in reach.</p>
+      </div>
+    </section>
+
+    <footer>Rental Register — a 2-hour agentic coding session in Business Central AL.</footer>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  // populate mobile nav by cloning the rail nav
+  var rail = document.getElementById('rail-nav');
+  var mobile = document.getElementById('mobile-nav');
+  if(rail && mobile){ mobile.innerHTML = rail.innerHTML; }
+
+  // copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-copy');
+      var el = document.getElementById(id);
+      if(!el) return;
+      var text = el.textContent;
+      var done = function(){
+        var original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = original; }, 1400);
+      };
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(done).catch(function(){});
+        }
+      }catch(e){}
+    });
+  });
+
+  // scroll-spy on the desktop rail
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail-nav a'));
+  var map = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    var target = document.getElementById(id);
+    if(target) map[id] = a;
+  });
+  if('IntersectionObserver' in window){
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        var link = map[entry.target.id];
+        if(!link) return;
+        if(entry.isIntersecting){
+          links.forEach(function(l){ l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    Object.keys(map).forEach(function(id){
+      observer.observe(document.getElementById(id));
+    });
+  }
+})();
+</script>
+</body>
+</html>
