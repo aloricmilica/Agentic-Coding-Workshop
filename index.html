@@ -370,6 +370,24 @@
   .review ul{ margin:0; padding-left:1.2em; color:var(--text-muted); }
   .review li{ margin-bottom:3px; }
 
+  .rules{ margin:8px 0 0; padding-left:1.2em; font-size:.86rem; color:var(--text-muted); }
+  .rules li{ margin-bottom:4px; }
+
+  .loop-list{
+    margin:0; padding-left:0; list-style:none; counter-reset:loop;
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .loop-list li{ position:relative; padding-left:42px; font-size:.95rem; }
+  .loop-list li::before{
+    counter-increment:loop; content:counter(loop);
+    position:absolute; left:0; top:-2px;
+    width:27px; height:27px; border-radius:50%;
+    background:var(--accent-2-bg); color:var(--accent-2); border:1px solid var(--accent-2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.78rem;
+  }
+  .loop-list strong{ font-family:"IBM Plex Mono",monospace; font-size:.78rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text); }
+
   footer{ grid-column:1/-1; border-top:1px solid var(--border); padding-top:20px; color:var(--text-muted); font-size:.82rem; }
 
   @media (prefers-reduced-motion: no-preference){
@@ -415,6 +433,7 @@
       <a class="sub" href="#stress-test">Stress-test</a>
       <a class="sub" href="#roadmap">Roadmap</a>
       <a class="sub" href="#coding-guidelines">Coding guidelines</a>
+      <a href="#feature-loop">The feature loop</a>
       <a href="#feature-1">Feature 1 — Equipment Register</a>
       <a class="sub" href="#f1-spec">Spec</a>
       <a class="sub" href="#f1-implement">Implement</a>
@@ -775,6 +794,21 @@ After completing all steps, confirm:
         <span class="eyebrow">Don't oversteer</span>
         Let the agent propose field names and object IDs. Your job is checking the shape — does row 1 actually ship something demoable? — not the spelling.
       </div>
+    </section>
+
+    <section id="feature-loop">
+      <h2>The feature loop</h2>
+      <p class="section-intro">Once the constitution is in place, every feature follows the same short loop:</p>
+      <div class="card">
+        <ol class="loop-list">
+          <li><strong>Spec</strong> — produce requirements.md, plan.md, and acceptance.md for this feature on a dedicated branch</li>
+          <li><strong>Implement</strong> — the agent builds from the spec; it can compile, test, and fix autonomously</li>
+          <li><strong>Test</strong> — confirm the feature works in the actual product; all automated tests pass</li>
+          <li><strong>Docs</strong> — write the user documentation and update the CHANGELOG</li>
+          <li><strong>Finalise</strong> — merge the feature branch, update the roadmap, replan if anything shifted</li>
+        </ol>
+      </div>
+      <p style="margin:14px 0 0; color:var(--text-muted); font-size:.92rem;">The loop is the same for every feature. Small features take one session. Large features take several. The structure doesn't change.</p>
     </section>
 
     <section id="feature-1">
